@@ -1,0 +1,40 @@
+name: MCPlugin
+version: '${project.version}'
+main: ch.plugin.mcplugin.MCPlugin
+api-version: '1.8.8'
+
+commands:
+  enderchest:
+    usage: /<command>
+    aliases: ec
+    description: Shows enderchest
+  setspawn:
+    usage: /<command>
+    description: Sets spawn location
+  spawn:
+    usage: /<command>
+    description: Teleports you to spawn
+  delspawn:
+    usage: /<command>
+    description: Deletes spawn
+  settings:
+    usage: /<command>
+    description: Open the weather settings menu.
+  gamemode:
+    usage: /<command> <mode>
+    aliases: [gm]
+    description: Change Gamemode
+  heal:
+    usage: /<command> <player>
+    description: Heal yourself or other player
+  invsee:
+    usage: /<command> <player>
+    description: Opens inventory from another player
+  kit:
+    usage: <command>
+    description: Opens kit menu
+  op:
+  deop:
+  tp:
+
+
