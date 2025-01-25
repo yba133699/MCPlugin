@@ -1,4 +1,4 @@
-package ch.plugin.mcplugin;
+package ch.plugin.mcplugin.listener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

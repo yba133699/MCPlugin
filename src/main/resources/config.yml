@@ -2,8 +2,8 @@ mysql:
   host: localhost
   port: 3306
   database: nemesiscore
-  username: spigotuser
-  password: Welcome$21
+  username: NEMESIS
+  password: qaywsx190
 
 settings:
   prefix: "§8▌ §3NemesisPvP §8• §7"

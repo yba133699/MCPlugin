@@ -1,7 +1,8 @@
-package ch.plugin.mcplugin;
+package ch.plugin.mcplugin.commands;
 
 import java.util.ArrayList;
 
+import ch.plugin.mcplugin.MCPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;

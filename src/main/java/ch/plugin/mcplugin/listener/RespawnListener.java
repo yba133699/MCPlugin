@@ -1,5 +1,7 @@
-package ch.plugin.mcplugin;
+package ch.plugin.mcplugin.listener;
 
+import ch.plugin.mcplugin.util.ItemBuilder;
+import ch.plugin.mcplugin.MCPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 
 public class RespawnListener implements Listener {

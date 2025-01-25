@@ -1,4 +1,4 @@
-package ch.plugin.mcplugin;
+package ch.plugin.mcplugin.util;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang.Validate;

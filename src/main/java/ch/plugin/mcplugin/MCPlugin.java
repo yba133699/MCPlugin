@@ -1,8 +1,13 @@
 package ch.plugin.mcplugin;
 
-import org.bukkit.Bukkit;
+import ch.plugin.mcplugin.commands.*;
+import ch.plugin.mcplugin.manager.ChatManager;
+import ch.plugin.mcplugin.mysql.MySQL;
+import ch.plugin.mcplugin.listener.JoinListener;
+import ch.plugin.mcplugin.listener.KitListener;
+import ch.plugin.mcplugin.listener.RespawnListener;
+import ch.plugin.mcplugin.listener.SettingsListener;
 import org.bukkit.plugin.java.JavaPlugin;
-
 
 public final class MCPlugin extends JavaPlugin {
 
@@ -15,10 +20,13 @@ public final class MCPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        if (instance != null) {
+            throw new IllegalStateException("MCPlugin wurde bereits initialisiert!");
+        }
         instance = this;
-        // Config laden oder erstellen
+
         saveDefaultConfig();
+        reloadConfig();
         loadConfigValues();
 
         // MySQL-Verbindung aufbauen
@@ -30,44 +38,29 @@ public final class MCPlugin extends JavaPlugin {
                     getConfig().getString("mysql.password")
             );
             sql1.connect();
-            getLogger().info("MySQL-Datenbank verbunden.");
         } catch (Exception e) {
-            getLogger().severe("MySQL-Verbindung fehlgeschlagen: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        Bukkit.getConsoleSender().sendMessage("Plugin started");
-        this.getCommand("enderchest").setExecutor(new EnderChestCommand());
-        this.getCommand("setspawn").setExecutor(new SpawnCommand());
-        this.getCommand("spawn").setExecutor(new SpawnCommand());
-        this.getCommand("delspawn").setExecutor(new SpawnCommand());
-        this.getCommand("settings").setExecutor(new SettingsCommand());
-        this.getCommand("gamemode").setExecutor(new GamemodeCommand());
-        this.getCommand("heal").setExecutor(new HealCommand());
-        this.getCommand("invsee").setExecutor(new InvseeCommand());
-        this.getCommand("kit").setExecutor(new KitCommand());
-        this.getCommand("op").setExecutor(new OPCommand());
-        this.getCommand("deop").setExecutor(new OPCommand());
-        this.getCommand("tp").setExecutor(new TeleportCommand());
-        getServer().getPluginManager().registerEvents(new SettingsListener(), this);
-        getServer().getPluginManager().registerEvents(new JoinListener(), this);
-        getServer().getPluginManager().registerEvents(new RespawnListener(), this);
-        getServer().getPluginManager().registerEvents(new KitListener(), this);
-        //getServer().getPluginManager().registerEvents(new DoubleJumpListener(), this);
 
+        registerCommands();
+        registerEvents();
+
+        getLogger().info("MCPlugin wurde erfolgreich gestartet.");
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if (sql1 != null && sql1.hasConnection()) {
+            sql1.close();
+        }
+        getLogger().info("MCPlugin wurde deaktiviert.");
     }
 
-    // Singleton-Zugriff
     public static MCPlugin getInstance() {
         return instance;
     }
 
-    // Config-Werte laden
     private void loadConfigValues() {
         this.noperms = getConfig().getString("settings.noperms", "§cDazu hast du keine Rechte!");
         this.prefix = getConfig().getString("settings.prefix", "§8▌ §3NemesisPvP §8• §7");
@@ -83,5 +76,29 @@ public final class MCPlugin extends JavaPlugin {
 
     public static MySQL getMySQL() {
         return sql1;
+    }
+
+    private void registerCommands() {
+        getCommand("enderchest").setExecutor(new EnderChestCommand());
+        getCommand("setspawn").setExecutor(new SpawnCommand());
+        getCommand("spawn").setExecutor(new SpawnCommand());
+        getCommand("delspawn").setExecutor(new SpawnCommand());
+        getCommand("settings").setExecutor(new SettingsCommand());
+        getCommand("gamemode").setExecutor(new GamemodeCommand());
+        getCommand("heal").setExecutor(new HealCommand());
+        getCommand("invsee").setExecutor(new InvseeCommand());
+        getCommand("kit").setExecutor(new KitCommand());
+        getCommand("op").setExecutor(new OPCommand());
+        getCommand("deop").setExecutor(new OPCommand());
+        getCommand("tp").setExecutor(new TeleportCommand());
+        getCommand("clan").setExecutor(new ClanCommand());
+    }
+
+    private void registerEvents() {
+        getServer().getPluginManager().registerEvents(new SettingsListener(), this);
+        getServer().getPluginManager().registerEvents(new JoinListener(), this);
+        getServer().getPluginManager().registerEvents(new RespawnListener(), this);
+        getServer().getPluginManager().registerEvents(new KitListener(), this);
+        getServer().getPluginManager().registerEvents(new ChatManager(), this);
     }
 }

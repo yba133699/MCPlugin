@@ -1,7 +1,7 @@
-package ch.plugin.mcplugin;
+package ch.plugin.mcplugin.commands;
 
+import ch.plugin.mcplugin.MCPlugin;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

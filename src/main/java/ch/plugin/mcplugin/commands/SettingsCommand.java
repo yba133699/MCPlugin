@@ -1,5 +1,6 @@
-package ch.plugin.mcplugin;
+package ch.plugin.mcplugin.commands;
 
+import ch.plugin.mcplugin.MCPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
