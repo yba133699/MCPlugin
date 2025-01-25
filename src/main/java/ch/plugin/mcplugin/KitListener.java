@@ -38,7 +38,7 @@ public class KitListener implements Listener {
 
             // Berechtigungsprüfung für das Kit
             if (!player.hasPermission("mcplugin.kit." + kitName.toLowerCase().replace(" kit", ""))) {
-                player.sendMessage(MCPlugin.getInstance().prefix() + " §cDu hast keine Berechtigung für das " + kitName + ".");
+                player.sendMessage(MCPlugin.getInstance().getPrefix() + " §cDu hast keine Berechtigung für das " + kitName + ".");
                 player.closeInventory();
                 return;
             }
@@ -52,7 +52,7 @@ public class KitListener implements Listener {
                     if (currentTime - lastUsed < cooldownTime) {
                         long remainingTime = cooldownTime - (currentTime - lastUsed);
                         long hours = remainingTime / 1000 / 60 / 60;
-                        player.sendMessage(MCPlugin.getInstance().prefix() + " §cDu kannst das " + kitName + " erst in " + hours + " Stunden erneut abholen.");
+                        player.sendMessage(MCPlugin.getInstance().getPrefix() + " §cDu kannst das " + kitName + " erst in " + hours + " Stunden erneut abholen.");
                         return;
                     }
                 }
@@ -64,7 +64,7 @@ public class KitListener implements Listener {
 
             // Kit vergeben
             giveKit(player, kitName);
-            player.sendMessage(MCPlugin.getInstance().prefix() + " §aDu hast erfolgreich das " + kitName + " erhalten!");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + " §aDu hast erfolgreich das " + kitName + " erhalten!");
             player.closeInventory();
         }
     }

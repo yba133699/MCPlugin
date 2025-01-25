@@ -18,7 +18,7 @@ public class KitCommand implements CommandExecutor {
         }
         Player player = (Player) sender;
         if(args.length != 0) {
-            player.sendMessage(MCPlugin.getInstance().prefix() + " §cBitte benutze /kit");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + " §cBitte benutze /kit");
             return true;
         }
         Inventory kitGUI = Bukkit.createInventory(null, 3*9, "§6Wähle ein Kit:");

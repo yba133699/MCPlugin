@@ -13,13 +13,13 @@ public class EnderChestCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) {
         if (!(s instanceof Player)) {
-            s.sendMessage(MCPlugin.getInstance().prefix() + "Du kannst den Befehl nicht ausführen");
+            s.sendMessage(MCPlugin.getInstance().getPrefix() + "Du kannst den Befehl nicht ausführen");
             return true;
         }
         Player p = (Player) s;
 
         if (!p.hasPermission("mcplugin.enderchest") && !p.hasPermission("mcplugin.enderchest.other")) {
-            p.sendMessage(MCPlugin.instance.prefix() + MCPlugin.getInstance().noperms());
+            p.sendMessage(MCPlugin.instance.getPrefix() + MCPlugin.getInstance().getNoperms());
             p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
             return true;
         }
@@ -29,11 +29,11 @@ public class EnderChestCommand implements CommandExecutor {
                 return true;
             }
             if (args.length > 1) {
-                p.sendMessage(MCPlugin.instance.prefix() + "§cBitte benutze /enderchest <player>");
+                p.sendMessage(MCPlugin.instance.getPrefix() + "§cBitte benutze /enderchest <player>");
                 p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
                 return true;
             }
-            p.sendMessage(MCPlugin.instance.prefix() + MCPlugin.getInstance().noperms());
+            p.sendMessage(MCPlugin.instance.getPrefix() + MCPlugin.getInstance().getNoperms());
             p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
             return true;
         }
@@ -44,16 +44,16 @@ public class EnderChestCommand implements CommandExecutor {
                     p.openInventory(target.getEnderChest());
                     return true;
                 }
-                p.sendMessage(MCPlugin.getInstance().prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online!");
+                p.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online!");
                 p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
                 return true;
             }
             if (args.length > 1) {
-                p.sendMessage(MCPlugin.instance.prefix() + "§cBitte benutze /enderchest <player>");
+                p.sendMessage(MCPlugin.instance.getPrefix() + "§cBitte benutze /enderchest <player>");
                 p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
                 return true;
             }
-            p.sendMessage(MCPlugin.instance.prefix() + MCPlugin.getInstance().noperms());
+            p.sendMessage(MCPlugin.instance.getPrefix() + MCPlugin.getInstance().getNoperms());
             p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
             return true;
         }
@@ -67,11 +67,11 @@ public class EnderChestCommand implements CommandExecutor {
                 p.openInventory(target.getEnderChest());
                 return true;
             }
-            p.sendMessage(MCPlugin.getInstance().prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online!");
+            p.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online!");
             p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
             return true;
         }
-        p.sendMessage(MCPlugin.instance.prefix() + "§cBitte benutze /enderchest <player>");
+        p.sendMessage(MCPlugin.instance.getPrefix() + "§cBitte benutze /enderchest <player>");
         p.playSound(p.getLocation(), Sound.ANVIL_BREAK, 3, 3);
         return true;
     }

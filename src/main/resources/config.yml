@@ -1,0 +1,13 @@
+mysql:
+  host: localhost
+  port: 3306
+  database: nemesiscore
+  username: spigotuser
+  password: Welcome$21
+
+settings:
+  prefix: "§8▌ §3NemesisPvP §8• §7"
+  noperms: "§cDazu hast du keine Rechte!"
+  joinMessage: "§7[§a+§7] {player}"
+  leaveMessage: "§7[§c-§7] {player}"
+

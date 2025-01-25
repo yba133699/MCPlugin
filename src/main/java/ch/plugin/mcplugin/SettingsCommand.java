@@ -14,11 +14,16 @@ public class SettingsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender s, Command cmd, String Label, String[] args) {
         if (s instanceof Player) {
-            if (args.length == 0) {
-                Player p = (Player) s;
-                openSettingsInventory(p);
+            Player p = (Player) s;
+            if(p.hasPermission("mcplugin.settings")) {
+                if (args.length == 0) {
+                    openSettingsInventory(p);
+                    return true;
+                }
+                p.sendMessage("§cBenutze: /settings");
                 return true;
             }
+            p.sendMessage(MCPlugin.instance.getPrefix() + MCPlugin.instance.getNoperms());
             return true;
         }
         return false;

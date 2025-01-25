@@ -8,13 +8,34 @@ public final class MCPlugin extends JavaPlugin {
 
     public static MCPlugin instance;
 
-    private final String noperms = "§cDazu hast du keine Rechte!";
+    private String noperms;
+    private String prefix;
 
-    private final String prefix = "§6§lServer §8│ §7";
+    public static MySQL sql1;
 
     @Override
     public void onEnable() {
+
         instance = this;
+        // Config laden oder erstellen
+        saveDefaultConfig();
+        loadConfigValues();
+
+        // MySQL-Verbindung aufbauen
+        try {
+            sql1 = new MySQL(
+                    getConfig().getString("mysql.host"),
+                    getConfig().getString("mysql.database"),
+                    getConfig().getString("mysql.username"),
+                    getConfig().getString("mysql.password")
+            );
+            sql1.connect();
+            getLogger().info("MySQL-Datenbank verbunden.");
+        } catch (Exception e) {
+            getLogger().severe("MySQL-Verbindung fehlgeschlagen: " + e.getMessage());
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         Bukkit.getConsoleSender().sendMessage("Plugin started");
         this.getCommand("enderchest").setExecutor(new EnderChestCommand());
         this.getCommand("setspawn").setExecutor(new SpawnCommand());
@@ -41,18 +62,26 @@ public final class MCPlugin extends JavaPlugin {
         // Plugin shutdown logic
     }
 
+    // Singleton-Zugriff
     public static MCPlugin getInstance() {
         return instance;
-
     }
 
-    public final String noperms() {
+    // Config-Werte laden
+    private void loadConfigValues() {
+        this.noperms = getConfig().getString("settings.noperms", "§cDazu hast du keine Rechte!");
+        this.prefix = getConfig().getString("settings.prefix", "§8▌ §3NemesisPvP §8• §7");
+    }
+
+    public String getNoperms() {
         return noperms;
-
     }
 
-    public final String prefix() {
+    public String getPrefix() {
         return prefix;
+    }
 
+    public static MySQL getMySQL() {
+        return sql1;
     }
 }

@@ -20,18 +20,25 @@ public class SpawnCommand implements CommandExecutor {
         Player p = (Player) s;
         switch (label.toLowerCase()) {
             case "setspawn":
-                setSpawn(p);
-                p.sendMessage(MCPlugin.getInstance().prefix() + "Der Spawn wurde gesetzt");
+                if (p.hasPermission("mcplugin.setspawn")) {
+                    setSpawn(p);
+                    p.sendMessage(MCPlugin.getInstance().getPrefix() + "Der Spawn wurde gesetzt");
+                    return true;
+                }
+                p.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
                 return true;
 
             case "spawn":
-
                 teleportToSpawn(p);
                 return true;
 
             case "delspawn":
-                deleteSpawn();
-                p.sendMessage(MCPlugin.getInstance().prefix() + "Du hast den Spawn gelöscht");
+                if (p.hasPermission("mcplugin.delspawn")) {
+                    deleteSpawn();
+                    p.sendMessage(MCPlugin.getInstance().getPrefix() + "Du hast den Spawn gelöscht");
+                    return true;
+                }
+                p.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
                 return true;
         }
         return false;
@@ -62,9 +69,9 @@ public class SpawnCommand implements CommandExecutor {
 
             Location spawnLocation = new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
             player.teleport(spawnLocation);
-            player.sendMessage(MCPlugin.getInstance().prefix() + "§aDu wurdest zum Spawnpunkt teleportiert!");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + "§aDu wurdest zum Spawnpunkt teleportiert!");
         } else {
-            player.sendMessage(MCPlugin.getInstance().prefix() + "§cEs wurde noch kein Spawnpunkt gesetzt.");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + "§cEs wurde noch kein Spawnpunkt gesetzt.");
         }
     }
 

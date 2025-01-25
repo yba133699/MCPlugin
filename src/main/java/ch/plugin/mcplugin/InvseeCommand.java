@@ -28,7 +28,7 @@ public class InvseeCommand implements CommandExecutor, Listener {
         }
         Player player = (Player) sender;
         if(!player.hasPermission("mcplugin.invsee")) {
-            player.sendMessage(MCPlugin.getInstance().prefix() + MCPlugin.getInstance().noperms());
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
             return true;
         }
         if(args.length == 1) {
@@ -45,16 +45,16 @@ public class InvseeCommand implements CommandExecutor, Listener {
                 player.openInventory(target.getInventory());
                 return true;
             }
-            player.sendMessage(MCPlugin.getInstance().prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online!");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online!");
             return true;
         }
         if(args.length > 1) {
-            player.sendMessage(MCPlugin.getInstance().prefix() + "§cBitte benutze /invsee <player>");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + "§cBitte benutze /invsee <player>");
             player.playSound(player.getLocation(), Sound.ANVIL_BREAK, 3, 3);
             return true;
         }
         if(args.length == 0) {
-            player.sendMessage(MCPlugin.getInstance().prefix() + "§cBitte benutze /invsee <player>");
+            player.sendMessage(MCPlugin.getInstance().getPrefix() + "§cBitte benutze /invsee <player>");
             player.playSound(player.getLocation(), Sound.ANVIL_BREAK, 3, 3);
             return true;
         }

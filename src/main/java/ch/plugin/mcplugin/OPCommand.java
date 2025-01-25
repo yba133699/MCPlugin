@@ -6,86 +6,94 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Locale;
-
 public class OPCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        Player p = (Player) sender;
-        switch (label.toLowerCase()) {
-            case "op":
-                if (sender != null) {
-                    if (args.length == 1) {
-                        Player target = Bukkit.getPlayer(args[0]);
-                        if (target != null) {
-                            if (target.isOp()) {
-                                sender.sendMessage(MCPlugin.instance.prefix() + "§cDer Spieler §7" + args[0] + " §chat schon Operator Rechte");
-                                return true;
-                            }
-                            target.setOp(true);
-                            sender.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §a" + args[0] + " §7hat hetzt Operator Rechte");
-                            return true;
-                        }
-                        sender.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online");
-                        return true;
-                    }
-                    sender.sendMessage(MCPlugin.getInstance().prefix() + "§cBitte benutze /op <player>");
-                    return true;
-                }
-                if (args.length == 1) {
-                    Player target = Bukkit.getPlayer(args[0]);
-                    if (target != null) {
-                        if (target.isOp()) {
-                            p.sendMessage(MCPlugin.instance.prefix() + "§cDer Spieler §7" + args[0] + " §chat schon Operator Rechte");
-                            return true;
-                        }
-                        target.setOp(true);
-                        p.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §a" + args[0] + " §7hat hetzt Operator Rechte");
-                        return true;
-                    }
-                    p.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online");
-                    return true;
-                }
-                p.sendMessage(MCPlugin.getInstance().prefix() + "§cBitte benutze /op <player>");
+        if (label.equalsIgnoreCase("op")) {
+            // Prüfen, ob genug Argumente angegeben sind
+            if (args.length != 1) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cBitte benutze: /op <player>");
                 return true;
+            }
 
-            case "deop":
-                if (sender != null) {
-                    if (args.length == 1) {
-                        Player target = Bukkit.getPlayer(args[0]);
-                        if (target != null) {
-                            if (!target.isOp()) {
-                                sender.sendMessage(MCPlugin.instance.prefix() + "§cDer Spieler §7" + args[0] + " §chat keine Operator Rechte");
-                                return true;
-                            }
-                            target.setOp(false);
-                            sender.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt keine Operator Rechte mehr");
-                            return true;
-                        }
-                        sender.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online");
-                        return true;
-                    }
-                    sender.sendMessage(MCPlugin.getInstance().prefix() + "§cBitte benutze /op <player>");
-                    return true;
-                }
-                if (args.length == 1) {
-                    Player target = Bukkit.getPlayer(args[0]);
-                    if (target != null) {
-                        if (!target.isOp()) {
-                            p.sendMessage(MCPlugin.instance.prefix() + "§cDer Spieler §7" + args[0] + " §chat keine Operator Rechte");
-                            return true;
-                        }
-                        target.setOp(false);
-                        p.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt keine Operator Rechte mehr");
-                        return true;
-                    }
-                    p.sendMessage(MCPlugin.instance.prefix() + "§7Der Spieler §c" + args[0] + " §7ist nicht online");
-                    return true;
-                }
-                p.sendMessage(MCPlugin.getInstance().prefix() + "§cBitte benutze /op <player>");
+            Player target = Bukkit.getPlayer(args[0]);
+            if (target == null) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDer Spieler §7" + args[0] + " §cist nicht online.");
                 return true;
+            }
+
+            if (target.isOp()) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDer Spieler §7" + args[0] + " §chat bereits Operator-Rechte.");
+                return true;
+            }
+
+            // Wenn der Sender ein Spieler ist
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+
+                // Berechtigung prüfen
+                if (!player.hasPermission("mcplugin.op")) {
+                    player.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
+                    return true;
+                }
+
+                // Operator-Rechte vergeben
+                target.setOp(true);
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt Operator-Rechte.");
+                target.sendMessage(MCPlugin.getInstance().getPrefix() + "§aDu wurdest von §7" + player.getName() + " §aals Operator gesetzt.");
+                return true;
+            }
+
+            // Wenn der Sender die Konsole ist
+            target.setOp(true);
+            sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt Operator-Rechte.");
+            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§aDu wurdest von der §7Konsole §aals Operator gesetzt.");
+            return true;
         }
+
+        if (label.equalsIgnoreCase("deop")) {
+            // Prüfen, ob genug Argumente angegeben sind
+            if (args.length != 1) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cBitte benutze: /deop <player>");
+                return true;
+            }
+
+            Player target = Bukkit.getPlayer(args[0]);
+            if (target == null) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDer Spieler §7" + args[0] + " §cist nicht online.");
+                return true;
+            }
+
+            if (!target.isOp()) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDer Spieler §7" + args[0] + " §chat keine Operator-Rechte.");
+                return true;
+            }
+
+            // Wenn der Sender ein Spieler ist
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+
+                // Berechtigung prüfen
+                if (!player.hasPermission("mcplugin.deop")) {
+                    player.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
+                    return true;
+                }
+
+                // Operator-Rechte entziehen
+                target.setOp(false);
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt keine Operator-Rechte mehr.");
+                target.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDu wurdest von §7" + player.getName() + " §cals Operator entfernt.");
+                return true;
+            }
+
+            // Wenn der Sender die Konsole ist
+            target.setOp(false);
+            sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt keine Operator-Rechte mehr.");
+            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDu wurdest von der §7Konsole §cals Operator entfernt.");
+            return true;
+        }
+
         return false;
     }
 }
