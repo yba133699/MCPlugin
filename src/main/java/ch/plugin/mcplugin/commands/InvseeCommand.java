@@ -35,7 +35,7 @@ public class InvseeCommand implements CommandExecutor, Listener {
         if(args.length == 1) {
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null) {
-                if(!player.hasPermission("mcplugin.invsee.bypass")) {
+                if(!target.hasPermission("mcplugin.invsee.bypass")) {
                     if(player.getInventory() == target.getInventory()) {
                         invsee.add(player);
                         player.openInventory(target.getInventory());

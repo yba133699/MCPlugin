@@ -32,7 +32,9 @@ public class ScoreboardManager {
 
         // Prefix and Suffix Management
         String rankPrefix = getRankPrefix(p);
-        String clanSuffix = (clanName != null) ? " §8[" + clanName + "]" : "";
+        // Suffix für Clan nur setzen, wenn tatsächlich ein Name existiert
+        String clanSuffix = (clanName != null && !clanName.trim().isEmpty()) ? " §8[" + clanName + "]" : "";
+
 
         // Ensure prefix and suffix do not exceed 16 characters
         rankPrefix = rankPrefix.substring(0, Math.min(16, rankPrefix.length()));
@@ -54,27 +56,27 @@ public class ScoreboardManager {
 
     private static String getRankPrefix(Player player) {
         if (PermissionsEx.getUser(player).inGroup("Owner")) {
-            return "§4Owner §8× §7";
+            return "§4Owner §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Entwickler")) {
-            return "§8× §3Entwickler §8» §7";
+            return "§3Entwickler §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Admin")) {
-            return "§8× §cAdmin §8» §7";
+            return "§cAdmin §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Architekt")) {
-            return "§8× §6Architekt §8» §7";
+            return "§6Architekt §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Moderator")) {
-            return "§8× §5Moderator §8» §7";
+            return "§5Moderator §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Supporter")) {
-            return "§8× §aSupporter §8» §7";
+            return "§aSupporter §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("ProbeSupporter")) {
-            return "§8× §aProbeSupporter §8» §7";
+            return "§aProbeSupporter §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Emerald")) {
-            return "§8× §aEmerald §8» §7";
+            return "§aEmerald §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Diamond")) {
-            return "§8× §bDiamond §8» §7";
+            return "§bDiamond §8» §7";
         } else if (PermissionsEx.getUser(player).inGroup("Gold")) {
-            return "§8× §6Gold §8» §7";
+            return "§6Gold §8» §7";
         } else {
-            return "§8× §3Spieler §8» §7";
+            return "§3Spieler §8» §7";
         }
     }
 
@@ -85,4 +87,36 @@ public class ScoreboardManager {
             team.removeEntry(player.getName());
         }
     }
+
+    public static void updatePlayerTeam(Player p) {
+        Scoreboard board = p.getScoreboard();
+        if (board == null) {
+            board = Bukkit.getScoreboardManager().getNewScoreboard();
+            p.setScoreboard(board);
+        }
+
+        // Clan abrufen
+        int clanId = ClanManager.getClanIdByPlayer(p.getUniqueId());
+        String clanName = (clanId != -1) ? ClanManager.getClanTag(clanId) : "";
+
+        // Prefix und Suffix neu setzen
+        String rankPrefix = getRankPrefix(p);
+        String clanSuffix = (clanName != null && !clanName.trim().isEmpty()) ? " §8[" + clanName + "]" : "";
+
+        // Zeichenbegrenzung von 16 einhalten
+        rankPrefix = rankPrefix.substring(0, Math.min(16, rankPrefix.length()));
+        clanSuffix = clanSuffix.substring(0, Math.min(16, clanSuffix.length()));
+
+        // Team für den Spieler updaten oder neu erstellen
+        Team team = board.getTeam(p.getName().substring(0, Math.min(16, p.getName().length())));
+        if (team == null) {
+            team = board.registerNewTeam(p.getName().substring(0, Math.min(16, p.getName().length())));
+        }
+
+        team.setPrefix(ChatColor.translateAlternateColorCodes('&', rankPrefix));
+        team.setSuffix(ChatColor.translateAlternateColorCodes('&', clanSuffix));
+        team.addEntry(p.getName());
+    }
+
+
 }

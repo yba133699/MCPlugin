@@ -1,13 +1,17 @@
 package ch.plugin.mcplugin;
 
 import ch.plugin.mcplugin.commands.*;
+import ch.plugin.mcplugin.events.WorldProtectionListener;
+import ch.plugin.mcplugin.listener.*;
 import ch.plugin.mcplugin.manager.ChatManager;
+import ch.plugin.mcplugin.manager.CombatManager;
+import ch.plugin.mcplugin.manager.CrateManager;
+import ch.plugin.mcplugin.manager.ScoreboardManager;
 import ch.plugin.mcplugin.mysql.MySQL;
-import ch.plugin.mcplugin.listener.JoinListener;
-import ch.plugin.mcplugin.listener.KitListener;
-import ch.plugin.mcplugin.listener.RespawnListener;
-import ch.plugin.mcplugin.listener.SettingsListener;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class MCPlugin extends JavaPlugin {
 
@@ -20,11 +24,9 @@ public final class MCPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (instance != null) {
-            throw new IllegalStateException("MCPlugin wurde bereits initialisiert!");
-        }
         instance = this;
-
+        crateManager = new CrateManager();
+        combatManager = new CombatManager();
         saveDefaultConfig();
         reloadConfig();
         loadConfigValues();
@@ -38,6 +40,7 @@ public final class MCPlugin extends JavaPlugin {
                     getConfig().getString("mysql.password")
             );
             sql1.connect();
+            sql1.setupDatabase();
         } catch (Exception e) {
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -47,6 +50,12 @@ public final class MCPlugin extends JavaPlugin {
         registerEvents();
 
         getLogger().info("MCPlugin wurde erfolgreich gestartet.");
+        Bukkit.getScheduler().runTaskTimer(MCPlugin.getInstance(), () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                ScoreboardManager.updatePlayerTeam(p);
+            }
+        }, 0L, 20L * 10); // Aktualisiert alle 10 Sekunden
+
     }
 
     @Override
@@ -78,6 +87,11 @@ public final class MCPlugin extends JavaPlugin {
         return sql1;
     }
 
+    private CrateManager crateManager;
+
+    private CombatManager combatManager;
+
+
     private void registerCommands() {
         getCommand("enderchest").setExecutor(new EnderChestCommand());
         getCommand("setspawn").setExecutor(new SpawnCommand());
@@ -91,7 +105,16 @@ public final class MCPlugin extends JavaPlugin {
         getCommand("op").setExecutor(new OPCommand());
         getCommand("deop").setExecutor(new OPCommand());
         getCommand("tp").setExecutor(new TeleportCommand());
+        getCommand("tpa").setExecutor(new TeleportCommand());
+        getCommand("tpahere").setExecutor(new TeleportCommand());
+        getCommand("tpaccept").setExecutor(new TeleportCommand());
         getCommand("clan").setExecutor(new ClanCommand());
+        getCommand("msg").setExecutor(new MsgCommand());
+        getCommand("r").setExecutor(new MsgCommand());
+        getCommand("repair").setExecutor(new RepairCommand());
+        getCommand("stack").setExecutor(new StackCommand());
+        getCommand("perk").setExecutor(new PerkCommand());
+
     }
 
     private void registerEvents() {
@@ -100,5 +123,16 @@ public final class MCPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RespawnListener(), this);
         getServer().getPluginManager().registerEvents(new KitListener(), this);
         getServer().getPluginManager().registerEvents(new ChatManager(), this);
+        String protectedWorld = "world"; // Setze hier den Namen der geschützten Welt
+        getServer().getPluginManager().registerEvents(new WorldProtectionListener(protectedWorld), this);
+        getServer().getPluginManager().registerEvents(new CrateListener(this), this);
+        getServer().getPluginManager().registerEvents(new PerkListener(), this);
+        getServer().getPluginManager().registerEvents(new CombatListener(combatManager), this);
+        getServer().getPluginManager().registerEvents(new MotdListener(), this);
+    }
+
+
+    public CrateManager getCrateManager() {
+        return crateManager;
     }
 }

@@ -11,6 +11,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
+import static ch.plugin.mcplugin.manager.ClanManager.getRankPriority;
+
 public class ClanCommand implements CommandExecutor {
 
     @Override
@@ -32,7 +36,6 @@ public class ClanCommand implements CommandExecutor {
             player.sendMessage("§8× §7/clan leave §8| §eClan verlassen");
             player.sendMessage("§8× §7/clan delete §8| §eClan löschen");
             player.sendMessage("§8× §7/clan info §8| §eInformationen über den Clan");
-            player.sendMessage("§8× §7/clan tag <tag> §8| §eClan-Tag ändern");
             player.sendMessage("§8× §7/clan setbase §8| §eClan-Basis setzen");
             player.sendMessage("§8× §7/clan base §8| §eZu Clan-Basis teleportieren");
             player.sendMessage("§8× §7/clan chat §8| §eIm Clan chatten");
@@ -77,7 +80,7 @@ public class ClanCommand implements CommandExecutor {
                 Player target = Bukkit.getPlayer(targetName);
 
                 if (target == null) {
-                    player.sendMessage(MCPlugin.instance.getPrefix() + "MCPlugin.instance.getPrefix() + §cDer Spieler ist nicht online!");
+                    player.sendMessage(MCPlugin.instance.getPrefix() + "§cDer Spieler ist nicht online!");
                     return true;
                 }
 
@@ -97,21 +100,39 @@ public class ClanCommand implements CommandExecutor {
                     return true;
                 }
 
-                ClanManager.invitePlayerToClan(playerClanId, target.getUniqueId());
-                target.sendMessage(MCPlugin.instance.getPrefix() + "§aDu wurdest in den Clan eingeladen! Benutze /clan accept, um beizutreten.");
+                ClanManager.invitePlayerToClan(playerClanId, target.getUniqueId(), player.getUniqueId());
+                target.sendMessage(MCPlugin.instance.getPrefix() + "§7Du wurdest in den Clan eingeladen! Benutze §a/clan accept§7, um beizutreten.");
                 player.sendMessage(MCPlugin.instance.getPrefix() + "§aEinladung erfolgreich gesendet!");
                 return true;
             case "accept":
-                int invitedClanId = ClanManager.getInvitedClanId(player.getUniqueId());
-                if (invitedClanId <= 0) {
-                    player.sendMessage(MCPlugin.instance.getPrefix() + "§cDu hast keine offenen Einladungen!");
+                int pendingClanId = ClanManager.getInvitedClanId(player.getUniqueId());
+                if (pendingClanId <= 0) {
+                    player.sendMessage(MCPlugin.instance.getPrefix() + "§cDu hast keine ausstehende Clan-Einladung!");
                     return true;
                 }
 
-                ClanManager.addPlayerToClan(invitedClanId, player.getUniqueId(), "Member");
-                ClanManager.removeInvitation(player.getUniqueId());
-                player.sendMessage(MCPlugin.instance.getPrefix() + "§aDu bist dem Clan erfolgreich beigetreten!");
+                if (ClanManager.isPlayerInClan(player.getUniqueId())) {
+                    player.sendMessage(MCPlugin.instance.getPrefix() + "§cDu bist bereits in einem Clan!");
+                    return true;
+                }
+
+                // Spieler dem Clan hinzufügen
+                boolean joined = ClanManager.addPlayerToClan(pendingClanId, player.getUniqueId(), "Member");
+                if (joined) {
+                    // Einladung entfernen
+                    ClanManager.removeInvitation(player.getUniqueId());
+
+                    // Erfolgreiche Nachricht
+                    player.sendMessage(MCPlugin.instance.getPrefix() + "§aDu bist dem Clan erfolgreich beigetreten!");
+
+                    // Nachricht an den Clan senden
+                    String clanName = ClanManager.getClanName(pendingClanId);
+                    ClanManager.sendMessageToClan(pendingClanId, "§7[§e" + clanName + "§7] §a" + player.getName() + " §7ist dem Clan beigetreten!");
+                } else {
+                    player.sendMessage(MCPlugin.instance.getPrefix() + "§cFehler beim Beitritt zum Clan. Bitte kontaktiere einen Administrator.");
+                }
                 return true;
+
             case "leave":
                 int currentClanId = ClanManager.getClanIdByPlayer(player.getUniqueId());
                 if (currentClanId <= 0) {
@@ -131,6 +152,8 @@ public class ClanCommand implements CommandExecutor {
                 // Spieler aus dem Clan entfernen
                 ClanManager.removePlayerFromClan(currentClanId, player.getUniqueId());
                 player.sendMessage(MCPlugin.instance.getPrefix() + "§aDu hast den Clan erfolgreich verlassen!");
+                ClanManager.sendMessageToClan(currentClanId, "§7[§eClan§7] §e" + player.getName() + " §7hat den Clan verlassen.");
+
                 return true;
 
             case "delete":
@@ -170,9 +193,48 @@ public class ClanCommand implements CommandExecutor {
                     return true;
                 }
 
-                String clanInfo = ClanManager.getClanInfo(infoClanId);
-                player.sendMessage(clanInfo);
+                // Clan-Informationen abrufen
+                String clanName = ClanManager.getClanName(infoClanId);
+                String clanTag = ClanManager.getClanTag(infoClanId);
+                String clanOwner = ClanManager.getClanOwner(infoClanId);
+                int memberCount = ClanManager.getClanMemberCount(infoClanId);
+                String baseLocation = ClanManager.getBaseLocation(infoClanId);
+                String formattedBase = (baseLocation != null && !baseLocation.isEmpty())
+                        ? baseLocation.replace(";", ", ")
+                        : "§cNicht gesetzt";
+
+                // Mitgliederliste nach Rängen sortieren abrufen
+                Map<String, String> membersWithRoles = ClanManager.getMembersWithRoles(infoClanId); // Map<PlayerName, Role>
+                StringBuilder sortedMembers = new StringBuilder();
+
+                // Sortiere Mitglieder nach Rang (Owner > Moderator > Member)
+                membersWithRoles.entrySet().stream()
+                        .sorted((entry1, entry2) -> {
+                            String role1 = entry1.getValue();
+                            String role2 = entry2.getValue();
+                            // Sortiere nach Rangreihenfolge
+                            return getRankPriority(role1) - getRankPriority(role2);
+                        })
+                        .forEach(entry -> {
+                            sortedMembers.append("§8 - §e").append(entry.getKey())
+                                    .append(" (").append(entry.getValue()).append(")\n");
+                        });
+
+                // Schönes Design für die Clan-Info
+                player.sendMessage("§8┏╋━━━━━━━━━━━━◥◣§c§lCLAN-INFORMATIONEN§8◢◤━━━━━━━━━━━━╋┓");
+                player.sendMessage("");
+                player.sendMessage("§8× §7Name: §e" + clanName);
+                player.sendMessage("§8× §7Tag: §e[" + clanTag + "]");
+                player.sendMessage("§8× §7Besitzer: §e" + clanOwner);
+                player.sendMessage("§8× §7Mitglieder: §e" + memberCount);
+                player.sendMessage("§8× §7Basis: §e" + formattedBase);
+                player.sendMessage("");
+                player.sendMessage("§8× §7Mitglieder-Liste:");
+                player.sendMessage(sortedMembers.toString().trim());
+                player.sendMessage("");
+                player.sendMessage("§8┗╋━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╋┛");
                 return true;
+
 
 
             case "setbase":
@@ -189,20 +251,22 @@ public class ClanCommand implements CommandExecutor {
                 }
                 break;
             case "base":
-                int baseClanId = ClanManager.getClanIdByPlayer(player.getUniqueId()); // Verwende eine eindeutige Variablenbezeichnung
+                // Überprüfe, ob der Spieler in einem Clan ist
+                int baseClanId = ClanManager.getClanIdByPlayer(player.getUniqueId());
                 if (baseClanId <= 0) {
                     player.sendMessage(MCPlugin.instance.getPrefix() + "§cDu bist in keinem Clan!");
                     return true;
                 }
 
-                String baseLocation = ClanManager.getBaseLocation(baseClanId);
-                if (baseLocation == null || baseLocation.isEmpty()) {
+                // Basisstandort abrufen
+                String clanBaseLocation = ClanManager.getBaseLocation(baseClanId); // Verwende einen eindeutigen Variablennamen
+                if (clanBaseLocation == null || clanBaseLocation.isEmpty()) {
                     player.sendMessage(MCPlugin.instance.getPrefix() + "§cDie Clan-Basis wurde noch nicht gesetzt!");
                     return true;
                 }
 
-                // Format: world;x;y;z
-                String[] parts = baseLocation.split(";");
+                // Teile die Koordinaten
+                String[] parts = clanBaseLocation.split(";");
                 if (parts.length != 4) {
                     player.sendMessage(MCPlugin.instance.getPrefix() + "§cDie Clan-Basis ist ungültig. Bitte kontaktiere einen Admin.");
                     return true;
@@ -219,6 +283,7 @@ public class ClanCommand implements CommandExecutor {
                         return true;
                     }
 
+                    // Spieler zur Basis teleportieren
                     Location location = new Location(world, x, y, z);
                     player.teleport(location);
                     player.sendMessage(MCPlugin.instance.getPrefix() + "§aDu wurdest zur Clan-Basis teleportiert!");

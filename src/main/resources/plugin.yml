@@ -36,6 +36,19 @@ commands:
   op:
   deop:
   tp:
+  tpa:
+  tpahere:
+  tpaccept:
   clan:
+  msg:
+    description: Sende eine private Nachricht an einen Spieler.
+  r:
+    description: Antworte auf die letzte private Nachricht.
+  repair:
+    aliases: [fix]
+    description: Repariere das aktuelle Item oder alle Items im Inventar.
+  stack:
+  perk:
+    aliases: [perks]
 
 

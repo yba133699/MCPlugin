@@ -12,7 +12,44 @@ public class GamemodeCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender s, Command cmd, String label, String[] args) {
         if (!(s instanceof Player)) {
-            s.sendMessage(MCPlugin.getInstance().getPrefix() + "Du kannst den Befehl nicht ausführen");
+            if (args.length == 2) {
+                String player = args[1];
+                Player target = Bukkit.getPlayer(args[1]);
+                if (target != null && target.isOnline()) {
+                    switch (args[0].toLowerCase()) {
+                        case "0":
+                        case "survival":
+                            target.setGameMode(GameMode.SURVIVAL);
+                            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Du bist jetzt im Überlebensmodus");
+                            s.sendMessage(MCPlugin.instance.getPrefix() + "§7Der Spieler §a" + args[1] + " §7ist jetzt im Überlebensmodus");
+                            break;
+                        case "1":
+                        case "creative":
+                            target.setGameMode(GameMode.CREATIVE);
+                            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Du bist jetzt im Kreativmodus");
+                            s.sendMessage(MCPlugin.instance.getPrefix() + "§7Der Spieler §a" + args[1] + " §7ist jetzt im Kreativmodus");
+                            break;
+                        case "2":
+                        case "adventure":
+                            target.setGameMode(GameMode.ADVENTURE);
+                            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Du bist jetzt im Abenteuermodus");
+                            s.sendMessage(MCPlugin.instance.getPrefix() + "§7Der Spieler §a" + args[1] + " §7ist jetzt im Abenteuermodus");
+                            break;
+                        case "3":
+                        case "spectator":
+                            target.setGameMode(GameMode.SPECTATOR);
+                            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Du bist jetzt im Zuschauermodus");
+                            s.sendMessage(MCPlugin.instance.getPrefix() + "§7Der Spieler §a" + args[1] + " §7ist jetzt im Zuschauermodus");
+                            break;
+                        default:
+                            s.sendMessage(MCPlugin.getInstance().getPrefix() + "§c/gamemode <mode>");
+                    }
+                    return true;
+                }
+                s.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §c" + args[1] + " §7ist nicht online!");
+                return true;
+            }
+            s.sendMessage(MCPlugin.getInstance().getPrefix() + "§c/gamemode <mode> <player>");
             return true;
         }
         Player p = (Player) s;

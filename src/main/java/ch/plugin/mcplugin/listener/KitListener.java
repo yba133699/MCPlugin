@@ -59,7 +59,7 @@ public class KitListener implements Listener {
         KitCooldownManager.setCooldown(playerUUID, kitName, currentTime);
 
         // Kit vergeben
-        giveKit(player, kitName);
+        giveVoteKeys(player, kitName);
         player.sendMessage(MCPlugin.getInstance().getPrefix() + " §aDu hast erfolgreich das " + kitName + " erhalten!");
         player.closeInventory();
     }
@@ -71,22 +71,34 @@ public class KitListener implements Listener {
         return null;
     }
 
-    private void giveKit(Player player, String kitName) {
+    private void giveVoteKeys(Player player, String kitName) {
+        int keyAmount;
+
+        // Bestimme die Anzahl der Vote-Keys basierend auf dem Kit
         switch (kitName) {
             case "Gold Kit":
-                player.getInventory().addItem(new ItemBuilder(Material.GOLD_BLOCK).amount(1).build());
+                keyAmount = 3;
                 break;
 
             case "Diamond Kit":
-                player.getInventory().addItem(new ItemBuilder(Material.DIAMOND_BLOCK).amount(1).build());
+                keyAmount = 5;
                 break;
 
             case "Emerald Kit":
-                player.getInventory().addItem(new ItemBuilder(Material.EMERALD_BLOCK).amount(1).build());
+                keyAmount = 7;
                 break;
 
             default:
-                break;
+                return;
         }
+
+        // Erstelle die Vote-Keys als Blaze Rods mit benutzerdefiniertem Namen
+        ItemStack voteKeys = new ItemBuilder(Material.BLAZE_ROD)
+                .amount(keyAmount)
+                .displayname("§eCrate Key")
+                .build();
+
+        // Gib die Vote-Keys ins Inventar des Spielers
+        player.getInventory().addItem(voteKeys);
     }
 }

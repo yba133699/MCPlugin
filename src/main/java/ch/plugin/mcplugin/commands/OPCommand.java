@@ -12,6 +12,12 @@ public class OPCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (label.equalsIgnoreCase("op")) {
+            // Berechtigungsabfrage für "mcplugin.op"
+            if (sender instanceof Player && !sender.hasPermission("mcplugin.op")) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
+                return true;
+            }
+
             // Prüfen, ob genug Argumente angegeben sind
             if (args.length != 1) {
                 sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cBitte benutze: /op <player>");
@@ -29,31 +35,20 @@ public class OPCommand implements CommandExecutor {
                 return true;
             }
 
-            // Wenn der Sender ein Spieler ist
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-
-                // Berechtigung prüfen
-                if (!player.hasPermission("mcplugin.op")) {
-                    player.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
-                    return true;
-                }
-
-                // Operator-Rechte vergeben
-                target.setOp(true);
-                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt Operator-Rechte.");
-                target.sendMessage(MCPlugin.getInstance().getPrefix() + "§aDu wurdest von §7" + player.getName() + " §aals Operator gesetzt.");
-                return true;
-            }
-
-            // Wenn der Sender die Konsole ist
+            // Operator-Rechte vergeben
             target.setOp(true);
             sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt Operator-Rechte.");
-            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§aDu wurdest von der §7Konsole §aals Operator gesetzt.");
+            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§aDu wurdest von §7" + sender.getName() + " §aals Operator gesetzt.");
             return true;
         }
 
         if (label.equalsIgnoreCase("deop")) {
+            // Berechtigungsabfrage für "mcplugin.deop"
+            if (sender instanceof Player && !sender.hasPermission("mcplugin.deop")) {
+                sender.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
+                return true;
+            }
+
             // Prüfen, ob genug Argumente angegeben sind
             if (args.length != 1) {
                 sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§cBitte benutze: /deop <player>");
@@ -71,27 +66,10 @@ public class OPCommand implements CommandExecutor {
                 return true;
             }
 
-            // Wenn der Sender ein Spieler ist
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-
-                // Berechtigung prüfen
-                if (!player.hasPermission("mcplugin.deop")) {
-                    player.sendMessage(MCPlugin.getInstance().getPrefix() + MCPlugin.getInstance().getNoperms());
-                    return true;
-                }
-
-                // Operator-Rechte entziehen
-                target.setOp(false);
-                sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt keine Operator-Rechte mehr.");
-                target.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDu wurdest von §7" + player.getName() + " §cals Operator entfernt.");
-                return true;
-            }
-
-            // Wenn der Sender die Konsole ist
+            // Operator-Rechte entziehen
             target.setOp(false);
             sender.sendMessage(MCPlugin.getInstance().getPrefix() + "§7Der Spieler §a" + args[0] + " §7hat jetzt keine Operator-Rechte mehr.");
-            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDu wurdest von der §7Konsole §cals Operator entfernt.");
+            target.sendMessage(MCPlugin.getInstance().getPrefix() + "§cDu wurdest von §7" + sender.getName() + " §cals Operator entfernt.");
             return true;
         }
 
